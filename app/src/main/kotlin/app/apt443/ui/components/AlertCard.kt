@@ -475,6 +475,7 @@ fun ProtectAlertCard(
     var actionsOpen by remember(alert.id) { mutableStateOf(false) }
     var cardFocused by remember { mutableStateOf(false) }
     var held by remember { mutableStateOf(false) }
+    var phraseChosen by remember(alert.id) { mutableStateOf(false) }
     var focusedControl by remember(alert.id) { mutableStateOf<String?>(null) }
     val showDoor = alert.kind == AlertKind.Doorbell ||
         alert.kind == AlertKind.AccessDoor ||
@@ -520,29 +521,33 @@ fun ProtectAlertCard(
 
     fun pressSay() {
         onInteract()
+        phraseChosen = false
         saying = true
         status = ""
     }
 
-    LaunchedEffect(takeFocus, saying) {
-        if (!takeFocus && !saying) return@LaunchedEffect
-        val target = when {
-            saying -> phraseFocus
-            actionsOpen -> actionFocus
-            else -> cardFocus
-        }
+    LaunchedEffect(takeFocus, saying, actionsOpen) {
+        if (saying) return@LaunchedEffect
+        if (!takeFocus && !actionsOpen) return@LaunchedEffect
+        val target = if (actionsOpen) actionFocus else cardFocus
         runCatching { target.requestFocus() }
     }
-    LaunchedEffect(actionsOpen) {
-        if (actionsOpen && !saying) runCatching { actionFocus.requestFocus() }
+    // The Say button is removed as the phrases appear, so focus falls back on the
+    // picture for a moment. Wait that out, then land on the first phrase and stay there.
+    LaunchedEffect(saying) {
+        if (!saying) return@LaunchedEffect
+        delay(80)
+        repeat(8) { attempt ->
+            if (runCatching { phraseFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
+            delay(40L * (attempt + 1))
+        }
     }
     LaunchedEffect(held) {
         if (held || !actionsOpen) return@LaunchedEffect
-        delay(250)
-        if (!speaking) {
-            actionsOpen = false
-            saying = false
-        }
+        delay(400)
+        if (speaking || (saying && !phraseChosen)) return@LaunchedEffect
+        actionsOpen = false
+        saying = false
     }
 
     Column(
@@ -574,14 +579,18 @@ fun ProtectAlertCard(
                 .fillMaxWidth()
                 .focusRequester(cardFocus)
                 .onFocusChanged {
-                    if (it.isFocused && !cardFocused) {
-                        userMovedFocus("card")
-                        if (actionsOpen && !speaking) {
-                            actionsOpen = false
-                            saying = false
-                        }
-                    }
+                    val gained = it.isFocused && !cardFocused
                     cardFocused = it.isFocused
+                    if (!gained) return@onFocusChanged
+                    userMovedFocus("card")
+                    if (speaking) return@onFocusChanged
+                    // Ignore the focus drop caused by removing the Say button. Once a phrase
+                    // has actually been focused, coming back to the picture puts the list away.
+                    if (saying) {
+                        if (phraseChosen) saying = false
+                        return@onFocusChanged
+                    }
+                    if (actionsOpen) actionsOpen = false
                 }
                 .onKeyEvent { event ->
                     when (event.key) {
@@ -714,7 +723,15 @@ fun ProtectAlertCard(
                         modifier = Modifier.padding(horizontal = AptSpace.xxs),
                     )
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusGroup()
+                            .focusProperties { onExit = { cancelFocusChange() } }
+                            .onPreviewKeyEvent { event ->
+                                val direction = directionOf(event) ?: return@onPreviewKeyEvent false
+                                focusManager.moveFocus(direction)
+                                true
+                            },
                         horizontalArrangement = Arrangement.spacedBy(AptSpace.xxs),
                         verticalArrangement = Arrangement.spacedBy(AptSpace.xxs),
                     ) {
@@ -749,6 +766,7 @@ fun ProtectAlertCard(
                                 fontSize = labelSize,
                                 modifier = (if (index == 0) Modifier.focusRequester(phraseFocus) else Modifier)
                                     .onFocusChanged {
+                                        if (it.isFocused) phraseChosen = true
                                         if (it.isFocused && !focused) userMovedFocus("say-$index")
                                         focused = it.isFocused
                                     },

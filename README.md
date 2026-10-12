@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version 0.3.0" src="https://img.shields.io/badge/version-0.3.0-0860FA?style=flat-square" />
+  <img alt="Version 0.3.1" src="https://img.shields.io/badge/version-0.3.1-0860FA?style=flat-square" />
   <img alt="Android TV" src="https://img.shields.io/badge/Android%20TV-min%20SDK%2026-071427?style=flat-square" />
   <img alt="Google TV" src="https://img.shields.io/badge/Google%20TV-supported-0750DC?style=flat-square" />
   <img alt="Fire TV" src="https://img.shields.io/badge/Fire%20TV-supported-0860FA?style=flat-square" />
@@ -48,15 +48,15 @@ Android TV and Google TV can grant “display over other apps” from Settings. 
 
 ## Download
 
-Current sideload build: **0.3.0** (`versionCode` 15), package `app.apt443`.
+Current sideload build: **0.3.1** (`versionCode` 16), package `app.apt443`.
 
 <p align="center">
   <a href="https://github.com/zodyking/UPort/raw/refs/heads/main/apk/UPort.apk">
-    <img alt="Download UPort 0.3.0 APK" src="https://img.shields.io/badge/Download-UPort%200.3.0%20APK-0860FA?style=for-the-badge" />
+    <img alt="Download UPort 0.3.1 APK" src="https://img.shields.io/badge/Download-UPort%200.3.1%20APK-0860FA?style=for-the-badge" />
   </a>
 </p>
 
-The file in this repository is [`apk/UPort.apk`](apk/UPort.apk). It is the 0.3.0 sideload build for manual install. It is not a Google Play or Amazon Appstore listing.
+The file in this repository is [`apk/UPort.apk`](apk/UPort.apk). It is the 0.3.1 sideload build for manual install. It is not a Google Play or Amazon Appstore listing.
 
 This copy is signed with the Android debug certificate. SHA-256: `ef60592035fc38fd6a6ce71d93de69ad7aa04ba8c0e778fad324e754d16a0043`. Confirm a download with `apksigner verify --print-certs` before you install it. If a previous UPort install used a different key, uninstall that copy first.
 
@@ -188,7 +188,7 @@ Open this folder in current Android Studio with Android SDK 37.
 | --- | --- |
 | Application id | `app.apt443` |
 | Compile / target / min SDK | 37 / 36 / 26 |
-| Version | 0.3.0 (15) |
+| Version | 0.3.1 (16) |
 | UI | Jetpack Compose for TV |
 | JDK | 17 or newer to compile |
 
