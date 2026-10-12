@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -112,9 +113,14 @@ fun CameraWizardScreen(
     val feed by container.protect.cameras().collectAsStateWithLifecycle(
         initialValue = Feed(emptyList(), Availability.NeedsSetup("")),
     )
-    val cameras = remember(feed.items, cameraIds) {
-        val all = feed.items
-        if (cameraIds == null) all else all.filter { it.id in cameraIds }
+    // The run keeps the cameras it started with, in order, so finishing one camera
+    // never shifts which camera comes next.
+    var roster by remember { mutableStateOf(emptyList<String>()) }
+    val wanted = feed.items.map { it.id }.filter { cameraIds == null || it in cameraIds }
+    val ids = roster + wanted.filterNot { it in roster }
+    SideEffect { if (ids != roster) roster = ids }
+    val cameras = remember(feed.items, ids) {
+        ids.mapNotNull { id -> feed.items.firstOrNull { it.id == id } }
     }
     val scope = rememberCoroutineScope()
     var cameraIndex by remember { mutableIntStateOf(0) }
@@ -190,9 +196,10 @@ fun CameraWizardScreen(
         runCatching { container.speech.playOnTv(question.spoken) }
     }
 
+    // Answers stay in the draft until the camera is finished. Saving earlier marks the
+    // camera as set up and the wizard would move on before its last steps.
     fun save(next: CameraAlertPrefs) {
         draft = next
-        scope.launch { container.setCameraAlertPrefs(camera.id, next) }
     }
 
     fun go(nextPhase: WizardPhase) {
