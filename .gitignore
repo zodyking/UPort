@@ -30,4 +30,4 @@ google-services.json
 /PALETTE.json
 
 # Sideload APK published with the repo. Other APKs stay ignored.
-!/dist/UPort-*.apk
+!/apk/UPort.apk

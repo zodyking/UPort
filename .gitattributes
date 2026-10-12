@@ -10,5 +10,5 @@
 *.pdf binary
 
 UPort_Brand_Kit/** linguist-vendored
-dist/** linguist-generated
+apk/** linguist-generated
 app/libs/** linguist-generated

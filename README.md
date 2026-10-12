@@ -51,14 +51,14 @@ Android TV and Google TV can grant “display over other apps” from Settings. 
 Current sideload build: **0.3.0** (`versionCode` 15), package `app.apt443`.
 
 <p align="center">
-  <a href="https://github.com/zodyking/UPort/raw/refs/heads/main/dist/UPort-0.3.0.apk">
+  <a href="https://github.com/zodyking/UPort/raw/refs/heads/main/apk/UPort.apk">
     <img alt="Download UPort 0.3.0 APK" src="https://img.shields.io/badge/Download-UPort%200.3.0%20APK-0860FA?style=for-the-badge" />
   </a>
 </p>
 
-The file in this repository is [`dist/UPort-0.3.0.apk`](dist/UPort-0.3.0.apk). It is a signed release build for manual install. It is not a Google Play or Amazon Appstore listing.
+The file in this repository is [`apk/UPort.apk`](apk/UPort.apk). It is the 0.3.0 sideload build for manual install. It is not a Google Play or Amazon Appstore listing.
 
-The signing certificate SHA-256 is `9016d31a5e8c09964879e7a6d2150325aea45763fc0b34ac3f96555e14ee7f19`. Confirm a download with `apksigner verify --print-certs` before you install it.
+This copy is signed with the Android debug certificate. SHA-256: `ef60592035fc38fd6a6ce71d93de69ad7aa04ba8c0e778fad324e754d16a0043`. Confirm a download with `apksigner verify --print-certs` before you install it. If a previous UPort install used a different key, uninstall that copy first.
 
 ## Install with ADB
 
@@ -87,7 +87,7 @@ Replace `192.168.1.50` with the TV address.
 ```bash
 adb connect 192.168.1.50:5555
 adb devices
-adb install -r dist/UPort-0.3.0.apk
+adb install -r apk/UPort.apk
 adb shell am start -n app.apt443/.MainActivity
 ```
 
@@ -97,7 +97,7 @@ adb shell am start -n app.apt443/.MainActivity
 
 ```bash
 adb uninstall app.apt443
-adb install dist/UPort-0.3.0.apk
+adb install apk/UPort.apk
 ```
 
 These commands are the same in PowerShell, Command Prompt, and a Unix shell. Download the APK first if you are not in a clone of this repo, then pass that file path to `adb install -r`.
@@ -167,7 +167,7 @@ adb shell appops set app.apt443 WRITE_SETTINGS allow
 
 ```bash
 adb connect 192.168.1.50:5555
-adb install -r dist/UPort-0.3.0.apk
+adb install -r apk/UPort.apk
 adb shell appops set app.apt443 SYSTEM_ALERT_WINDOW allow
 adb shell settings put secure accessibility_enabled 1
 adb shell settings put secure enabled_accessibility_services app.apt443/app.apt443.alert.Apt443AccessibilityService
@@ -219,7 +219,7 @@ The debug APK is written under `app/build/outputs/apk/debug/`. A signed release 
 ```
 app/                 Android TV application
 app/libs/            Bundled Tailscale library used by the remote VPN
-dist/                Sideload APK published with this repo
+apk/                 Sideload APK published with this repo
 gradle/              Version catalog and wrapper
 UPort_Brand_Kit/     Logo masters, store art, and palette
 ```
