@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.jar binary
+*.aar binary
+*.apk binary
+*.jks binary
+*.png binary
+*.pdf binary
+
+UPort_Brand_Kit/** linguist-vendored
+dist/** linguist-generated
+app/libs/** linguist-generated

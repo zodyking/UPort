@@ -1,0 +1,33 @@
+*.iml
+.gradle/
+.kotlin/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.ap_
+*.aab
+*.keystore
+*.jks
+keystore.properties
+secrets.properties
+google-services.json
+
+# Local notes, experiments, and machine-specific helpers
+/Agent-Files/
+/PipTV/
+/tools/
+
+# Loose copies of files that already live in UPort_Brand_Kit
+/ASSET_MANIFEST.json
+/INTEGRATION_NOTES.md
+/OFFICIAL_SOURCES.json
+/PALETTE.json
+
+# Sideload APK published with the repo. Other APKs stay ignored.
+!/dist/UPort-*.apk

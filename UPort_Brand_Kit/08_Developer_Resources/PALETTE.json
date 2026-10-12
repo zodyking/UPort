@@ -1,0 +1,20 @@
+{
+  "brand": "UPort",
+  "version": "1.1",
+  "colors": {
+    "signal_blue": "#0860FA",
+    "electric_dark": "#0750DC",
+    "sky": "#68C7FF",
+    "midnight": "#071427",
+    "night_surface": "#0A1D3B",
+    "panel": "#14284A",
+    "ice": "#EAF3FF",
+    "white": "#FFFFFF",
+    "steel": "#55718F"
+  },
+  "typography": {
+    "logo": "Custom UPort traced wordmark, use SVG master",
+    "ui": "Inter / Lato",
+    "fallback": "Arial, system-ui"
+  }
+}

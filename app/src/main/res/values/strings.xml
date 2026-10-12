@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UPort</string>
+    <string name="watch_channel">UPort</string>
+    <string name="watch_notification">Watching for doorbells and motion</string>
+    <string name="alert_channel">Camera alerts</string>
+    <string name="alert_action_watch">Watch</string>
+    <string name="alert_action_ignore">Ignore</string>
+    <string name="accessibility_label">UPort alerts</string>
+    <string name="accessibility_summary">Lets camera alerts appear over other apps</string>
+    <string name="accessibility_description">Turn this on so doorbell and camera alerts can appear in a corner over whatever you are watching. UPort sees which app is in front so it can offer to silence alerts, and does not read what is on screen. This is the only way Fire TV allows an app to show an alert over another app.</string>
+</resources>

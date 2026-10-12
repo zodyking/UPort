@@ -1,0 +1,75 @@
+name: Bug report
+description: Something in UPort failed on a TV.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Leave out API keys, Tailscale auth keys, console passwords, and `.unvr` files. A screenshot of the TV is welcome when it shows the failure.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: TV
+      description: Where you saw it.
+      options:
+        - Amazon Fire TV
+        - Google TV
+        - Android TV
+        - Android TV emulator
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: UPort version
+      description: Settings shows the build, or use the APK you installed. Current sideload build is 0.3.0.
+      placeholder: 0.3.0
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: TV software
+      description: Fire OS or Android TV version, if you know it.
+      placeholder: Fire OS 8 / Android 14
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what the TV did instead.
+      placeholder: The doorbell popup never appeared over Netflix.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open UPort and sign in
+        2. Leave the TV on the home screen
+        3. Ring the doorbell
+    validations:
+      required: true
+  - type: checkboxes
+    id: setup
+    attributes:
+      label: Setup already tried
+      options:
+        - label: Installed with adb install
+        - label: SYSTEM_ALERT_WINDOW app-op is allow
+        - label: UPort alerts accessibility service is on
+        - label: Using demo mode, not a live console
+        - label: Using Tailscale / remote access
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Optional. `adb logcat` filtered to UPort is enough. Remove tokens and hostnames you do not want public.
+      render: text
+    validations:
+      required: false

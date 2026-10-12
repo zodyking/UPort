@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Apt443" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0B0E12</item>
+        <item name="android:colorBackground">#0B0E12</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+    <style name="Theme.Apt443.Translucent" parent="Theme.Apt443">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+</resources>

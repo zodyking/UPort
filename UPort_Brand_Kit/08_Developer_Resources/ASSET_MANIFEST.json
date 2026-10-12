@@ -1,0 +1,440 @@
+[
+  {
+    "path": "UPort_Brand_Guidelines.pdf",
+    "type": "pdf",
+    "pixels": "vector/document",
+    "bytes": 516402
+  },
+  {
+    "path": "README_FIRST.md",
+    "type": "md",
+    "pixels": "vector/document",
+    "bytes": 1252
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_launcher_icon_xxhdpi_240x240.png",
+    "type": "png",
+    "pixels": "240x240",
+    "bytes": 5758
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_launcher_icon_xxxhdpi_320x320.png",
+    "type": "png",
+    "pixels": "320x320",
+    "bytes": 7904
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_banner_hdpi_240x135.png",
+    "type": "png",
+    "pixels": "240x135",
+    "bytes": 5273
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_launcher_icon_xhdpi_160x160.png",
+    "type": "png",
+    "pixels": "160x160",
+    "bytes": 3831
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_launcher_icon_mdpi_80x80.png",
+    "type": "png",
+    "pixels": "80x80",
+    "bytes": 1936
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_banner_xxhdpi_480x270.png",
+    "type": "png",
+    "pixels": "480x270",
+    "bytes": 10708
+  },
+  {
+    "path": "02_Google_Play_Android_TV/Google_Play_App_Icon_512x512.png",
+    "type": "png",
+    "pixels": "512x512",
+    "bytes": 13241
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_launcher_icon_hdpi_120x120.png",
+    "type": "png",
+    "pixels": "120x120",
+    "bytes": 2785
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_adaptive_icon_foreground_432.png",
+    "type": "png",
+    "pixels": "432x432",
+    "bytes": 7004
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_adaptive_icon_background_432.png",
+    "type": "png",
+    "pixels": "432x432",
+    "bytes": 1174
+  },
+  {
+    "path": "02_Google_Play_Android_TV/Google_Play_Feature_Graphic_1024x500.png",
+    "type": "png",
+    "pixels": "1024x500",
+    "bytes": 29043
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_banner_xxxhdpi_640x360.png",
+    "type": "png",
+    "pixels": "640x360",
+    "bytes": 14541
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_banner_xhdpi_320x180.png",
+    "type": "png",
+    "pixels": "320x180",
+    "bytes": 7010
+  },
+  {
+    "path": "02_Google_Play_Android_TV/Google_Play_TV_Store_Banner_1280x720.png",
+    "type": "png",
+    "pixels": "1280x720",
+    "bytes": 26809
+  },
+  {
+    "path": "02_Google_Play_Android_TV/android_tv_banner_mdpi_160x90.png",
+    "type": "png",
+    "pixels": "160x90",
+    "bytes": 3603
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Wordmark_White.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 2987
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Transparent_Symbol_512.png",
+    "type": "png",
+    "pixels": "512x512",
+    "bytes": 9460
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Logo_Horizontal_Dark.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 4691
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Logo_Horizontal_White.png",
+    "type": "png",
+    "pixels": "2300x930",
+    "bytes": 36205
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_256x256.png",
+    "type": "png",
+    "pixels": "256x256",
+    "bytes": 6206
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Wordmark_Dark.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 2987
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Symbol_White.png",
+    "type": "png",
+    "pixels": "1024x1024",
+    "bytes": 18820
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_192x192.png",
+    "type": "png",
+    "pixels": "192x192",
+    "bytes": 4546
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Symbol_White.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 1789
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Icon_Full_Bleed_Blue.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 1844
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Wordmark_White.png",
+    "type": "png",
+    "pixels": "1932x548",
+    "bytes": 25113
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Icon_Full_Bleed_White.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 1844
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Wordmark_Dark.png",
+    "type": "png",
+    "pixels": "1932x548",
+    "bytes": 27124
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_64x64.png",
+    "type": "png",
+    "pixels": "64x64",
+    "bytes": 1528
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Symbol_Blue.png",
+    "type": "png",
+    "pixels": "1024x1024",
+    "bytes": 22788
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Icon_Full_Bleed_Navy.png",
+    "type": "png",
+    "pixels": "1024x1024",
+    "bytes": 34850
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Icon_Full_Bleed_Blue.png",
+    "type": "png",
+    "pixels": "1024x1024",
+    "bytes": 31433
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Icon_Full_Bleed_Navy.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 1844
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_48x48.png",
+    "type": "png",
+    "pixels": "48x48",
+    "bytes": 1135
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Logo_Horizontal_Dark.png",
+    "type": "png",
+    "pixels": "2300x930",
+    "bytes": 43710
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Wordmark_Blue.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 2987
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_1024x1024.png",
+    "type": "png",
+    "pixels": "1024x1024",
+    "bytes": 29014
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Symbol_Blue.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 1789
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_128x128.png",
+    "type": "png",
+    "pixels": "128x128",
+    "bytes": 2994
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_512x512.png",
+    "type": "png",
+    "pixels": "512x512",
+    "bytes": 13241
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Logo_Horizontal_Blue.png",
+    "type": "png",
+    "pixels": "2300x930",
+    "bytes": 43251
+  },
+  {
+    "path": "01_Logo_Masters/UPort_AppIcon_114x114.png",
+    "type": "png",
+    "pixels": "114x114",
+    "bytes": 2687
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Icon_Full_Bleed_White.png",
+    "type": "png",
+    "pixels": "1024x1024",
+    "bytes": 32606
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Logo_Horizontal_Blue.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 4691
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Wordmark_Blue.png",
+    "type": "png",
+    "pixels": "1932x548",
+    "bytes": 26922
+  },
+  {
+    "path": "01_Logo_Masters/UPort_Logo_Horizontal_White.svg",
+    "type": "svg",
+    "pixels": "vector/document",
+    "bytes": 4691
+  },
+  {
+    "path": "04_GitHub/GitHub_Social_Preview_1280x640.png",
+    "type": "png",
+    "pixels": "1280x640",
+    "bytes": 45004
+  },
+  {
+    "path": "04_GitHub/GitHub_README_Starter.md",
+    "type": "md",
+    "pixels": "vector/document",
+    "bytes": 1243
+  },
+  {
+    "path": "04_GitHub/GitHub_Avatar_512x512.png",
+    "type": "png",
+    "pixels": "512x512",
+    "bytes": 13241
+  },
+  {
+    "path": "04_GitHub/GitHub_README_Hero_1600x500.png",
+    "type": "png",
+    "pixels": "1600x500",
+    "bytes": 25527
+  },
+  {
+    "path": "04_GitHub/GitHub_OpenGraph_1200x630.png",
+    "type": "png",
+    "pixels": "1200x630",
+    "bytes": 22385
+  },
+  {
+    "path": "07_Screenshot_Guides/Apple_tvOS_Screenshot_TEMPLATE_1920x1080.png",
+    "type": "png",
+    "pixels": "1920x1080",
+    "bytes": 47439
+  },
+  {
+    "path": "07_Screenshot_Guides/Amazon_Fire_TV_Screenshot_TEMPLATE_1920x1080.png",
+    "type": "png",
+    "pixels": "1920x1080",
+    "bytes": 47476
+  },
+  {
+    "path": "07_Screenshot_Guides/Google_Play_TV_Screenshot_TEMPLATE_1920x1080.png",
+    "type": "png",
+    "pixels": "1920x1080",
+    "bytes": 48462
+  },
+  {
+    "path": "05_Apple_tvOS_References/tvOS_Top_Shelf_Reference_2320x720.png",
+    "type": "png",
+    "pixels": "2320x720",
+    "bytes": 34125
+  },
+  {
+    "path": "05_Apple_tvOS_References/tvOS_App_Store_Icon_Flat_Reference_1280x768.png",
+    "type": "png",
+    "pixels": "1280x768",
+    "bytes": 29454
+  },
+  {
+    "path": "05_Apple_tvOS_References/tvOS_Top_Shelf_Reference_1920x720.png",
+    "type": "png",
+    "pixels": "1920x720",
+    "bytes": 32746
+  },
+  {
+    "path": "05_Apple_tvOS_References/tvOS_Launcher_Icon_Flat_Reference_400x240.png",
+    "type": "png",
+    "pixels": "400x240",
+    "bytes": 9684
+  },
+  {
+    "path": "00_Approved_Render/README.txt",
+    "type": "txt",
+    "pixels": "vector/document",
+    "bytes": 182
+  },
+  {
+    "path": "00_Approved_Render/Approved_UPort_Brand_Render.png",
+    "type": "png",
+    "pixels": "1774x887",
+    "bytes": 1244829
+  },
+  {
+    "path": "06_Promotional/UPort_Promo_1600x900.png",
+    "type": "png",
+    "pixels": "1600x900",
+    "bytes": 35934
+  },
+  {
+    "path": "06_Promotional/UPort_Splash_1920x1080.png",
+    "type": "png",
+    "pixels": "1920x1080",
+    "bytes": 45511
+  },
+  {
+    "path": "08_Developer_Resources/ASSET_MANIFEST.json",
+    "type": "json",
+    "pixels": "vector/document",
+    "bytes": 10140
+  },
+  {
+    "path": "08_Developer_Resources/INTEGRATION_NOTES.md",
+    "type": "md",
+    "pixels": "vector/document",
+    "bytes": 1247
+  },
+  {
+    "path": "08_Developer_Resources/OFFICIAL_SOURCES.json",
+    "type": "json",
+    "pixels": "vector/document",
+    "bytes": 874
+  },
+  {
+    "path": "08_Developer_Resources/PALETTE.json",
+    "type": "json",
+    "pixels": "vector/document",
+    "bytes": 441
+  },
+  {
+    "path": "03_Amazon_Fire_TV/Amazon_Tablet_App_Icon_512x512.png",
+    "type": "png",
+    "pixels": "512x512",
+    "bytes": 13241
+  },
+  {
+    "path": "03_Amazon_Fire_TV/Amazon_Tablet_App_Icon_114x114.png",
+    "type": "png",
+    "pixels": "114x114",
+    "bytes": 2687
+  },
+  {
+    "path": "03_Amazon_Fire_TV/Amazon_Tablet_Promotional_1024x500.png",
+    "type": "png",
+    "pixels": "1024x500",
+    "bytes": 16872
+  },
+  {
+    "path": "03_Amazon_Fire_TV/Fire_TV_Background_1920x1080.png",
+    "type": "png",
+    "pixels": "1920x1080",
+    "bytes": 86034
+  },
+  {
+    "path": "03_Amazon_Fire_TV/Fire_TV_App_Icon_1280x720.png",
+    "type": "png",
+    "pixels": "1280x720",
+    "bytes": 28146
+  }
+]

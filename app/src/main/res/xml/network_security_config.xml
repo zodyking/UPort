@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Protect integration APIs stay on HTTPS. Live RTSP is rewritten from
+         rtsps (SRTP) to rtsp on the LAN, which is cleartext by design. -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

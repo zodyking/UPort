@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/zodyking/UPort/security/policy
+    about: Report a vulnerability in private. Do not open a public issue for secrets, auth bypass, or exposed credentials.
+  - name: Install and ADB setup
+    url: https://github.com/zodyking/UPort#install-with-adb
+    about: Manual install, overlay permission, accessibility, and secure-settings grants are documented in the README.

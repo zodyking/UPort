@@ -1,0 +1,63 @@
+name: Feature request
+description: Propose something UPort should do on the TV.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests are for the TV app. Store-listing art and brand questions can still go here when they block a release.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard or missing when you use UPort today?
+      placeholder: I cannot tell which camera rang while a movie is playing.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you want
+      description: How should it behave with a remote, on a 10-foot screen?
+      placeholder: Show the camera name on the corner card and speak it once.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where it belongs
+      multiple: true
+      options:
+        - Live Feed
+        - Playback
+        - Access
+        - Network
+        - Tailscale
+        - Alerts
+        - Screensaver
+        - Settings
+        - Install / permissions
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: TVs it should work on
+      multiple: true
+      options:
+        - Amazon Fire TV
+        - Google TV
+        - Android TV
+        - All of them
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: A photo of the TV, a Protect console detail, or a reason this should wait.
+    validations:
+      required: false
