@@ -275,13 +275,20 @@ fun Apt443Root(container: AppContainer) {
     )
     val unsetCameras = current.camerasNeedingSetup(cameraFeed.items)
     val manualWizard by CameraWizardBus.request.collectAsStateWithLifecycle()
-    val setupLocked = unsetCameras.isNotEmpty()
+    // A setup run holds every camera it was asked about until Finish, even after each
+    // camera has saved and left the "needs setup" list.
+    var setupRun by remember { mutableStateOf<Set<String>?>(null) }
+    val unsetIds = unsetCameras.map { it.id }.toSet()
+    if (unsetIds.isNotEmpty() && setupRun?.containsAll(unsetIds) != true) {
+        setupRun = setupRun.orEmpty() + unsetIds
+    }
+    val setupLocked = setupRun != null
     if (setupLocked || manualWizard != null) {
         val client = remember(current.consoleHost, current.trustConsoleCertificate) {
             container.http.clientFor(current)
         }
         val wizardIds = if (setupLocked) {
-            unsetCameras.map { it.id }.toSet()
+            setupRun
         } else {
             manualWizard?.takeIf { it.isNotBlank() }?.let { setOf(it) }
         }
@@ -295,6 +302,7 @@ fun Apt443Root(container: AppContainer) {
                 scope.launch {
                     container.markCameraWizardDone(current.identityUserId)
                     CameraWizardBus.clear()
+                    setupRun = null
                 }
             },
             onSkip = { CameraWizardBus.clear() },
