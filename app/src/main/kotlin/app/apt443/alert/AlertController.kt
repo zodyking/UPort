@@ -112,13 +112,23 @@ object AptVisibility {
 
 object DreamVisibility {
     private val showing = MutableStateFlow(false)
+    private var dream = false
+    private var preview = false
 
-    /** True while the camera dream is attached. Corner alerts and always-on cameras stay hidden. */
+    /** True while the camera dream or the manual sleep screen is up. Corner alerts stay hidden. */
     val active: StateFlow<Boolean> = showing.asStateFlow()
 
     var showingDream: Boolean
-        get() = showing.value
+        get() = dream
         set(value) {
-            showing.value = value
+            dream = value
+            showing.value = dream || preview
+        }
+
+    var showingPreview: Boolean
+        get() = preview
+        set(value) {
+            preview = value
+            showing.value = dream || preview
         }
 }

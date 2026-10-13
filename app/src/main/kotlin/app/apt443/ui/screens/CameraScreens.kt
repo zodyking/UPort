@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Brush
@@ -81,7 +82,9 @@ import app.apt443.ui.components.AptFocusSurface
 import app.apt443.ui.components.AptIcon
 import app.apt443.ui.components.AptIconButton
 import app.apt443.ui.components.AptIconKind
+import app.apt443.screensaver.SleepPreview
 import app.apt443.ui.components.AptSegmented
+import app.apt443.ui.components.AptSwitchRow
 import app.apt443.ui.components.AvailabilityLine
 import app.apt443.ui.components.EmptyState
 import app.apt443.ui.components.InlineMessage
@@ -172,7 +175,13 @@ fun CamerasScreen(container: AppContainer, client: OkHttpClient, nav: NavHostCon
         }
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    val sleepOn by SleepPreview.open.collectAsStateWithLifecycle()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .focusProperties { onEnter = { if (sleepOn) cancelFocusChange() } },
+    ) {
+    BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
         val columns = if (maxWidth.value >= 700) 2 else 1
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
@@ -264,11 +273,20 @@ fun CamerasScreen(container: AppContainer, client: OkHttpClient, nav: NavHostCon
                         lastOpened = camera.id
                         nav.navigate(Routes.live(camera.id))
                     },
-                    playing = camera.id in visibleKeys,
+                    playing = camera.id in visibleKeys && !sleepOn,
                     modifier = Modifier.focusRequester(focusFor(camera.id)),
                 )
             }
         }
+    }
+        AptSwitchRow(
+            label = "Sleep screen",
+            description = "Show the camera wall on this TV.",
+            checked = sleepOn,
+            icon = AptIconKind.Camera,
+            onToggle = { SleepPreview.open.value = !sleepOn },
+            modifier = Modifier.padding(bottom = AptSpace.xs),
+        )
     }
 }
 

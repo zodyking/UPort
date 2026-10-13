@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +86,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import app.apt443.R
 import app.apt443.alert.AlertController
+import app.apt443.alert.DreamVisibility
 import app.apt443.alert.QuietPromptController
 import app.apt443.data.AppContainer
 import app.apt443.domain.AccountGate
@@ -125,8 +127,11 @@ import app.apt443.ui.theme.AptSpace
 import app.apt443.ui.theme.LocalReducedMotion
 import app.apt443.ui.theme.aptTween
 import app.apt443.data.Startup
+import app.apt443.screensaver.CameraWall
+import app.apt443.screensaver.SleepPreview
 import app.apt443.ui.components.AptButton
 import app.apt443.ui.components.AptButtonStyle
+import app.apt443.ui.components.AptSwitchRow
 import app.apt443.ui.player.StreamSpinner
 import app.apt443.ui.theme.AptType
 
@@ -330,7 +335,8 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
     val watch by NavigationBus.camera.collectAsStateWithLifecycle()
     val entry by nav.currentBackStackEntryAsState()
     val route = entry?.destination?.route
-    val immersive = route?.startsWith("live/") == true
+    val sleepOn by SleepPreview.open.collectAsStateWithLifecycle()
+    val immersive = route?.startsWith("live/") == true || sleepOn
     val reduced = LocalReducedMotion.current
     val focusManager = LocalFocusManager.current
     var menuOpen by remember { mutableStateOf(false) }
@@ -339,6 +345,7 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
     val railFocus = remember { FocusRequester() }
     val pageFocus = remember { FocusRequester() }
     val pageAnchor = remember { FocusRequester() }
+    val sleepFocus = remember { FocusRequester() }
     var anchorArmed by remember { mutableStateOf(false) }
     val popups = slots
     val showPrompt = prompt
@@ -358,9 +365,21 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
     // Page focus: restore the last control (focusRestorer), else enter the page's first control,
     // else park on the 1dp anchor so the remote still has a target. While parked, keep retrying
     // for a moment because pages that load data make their controls focusable a little later.
-    LaunchedEffect(route, menuOpen, overlayUp) {
+    DisposableEffect(Unit) {
+        onDispose { DreamVisibility.showingPreview = false }
+    }
+    LaunchedEffect(sleepOn) {
+        DreamVisibility.showingPreview = sleepOn
+        if (!sleepOn) return@LaunchedEffect
+        menuOpen = false
+        repeat(8) { attempt ->
+            if (attempt > 0) delay(40)
+            if (runCatching { sleepFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
+        }
+    }
+    LaunchedEffect(route, menuOpen, overlayUp, sleepOn) {
         anchorArmed = false
-        if (menuOpen || immersive || overlayUp) return@LaunchedEffect
+        if (menuOpen || immersive || overlayUp || sleepOn) return@LaunchedEffect
         delay(48)
         repeat(6) { attempt ->
             if (attempt > 0) delay(220)
@@ -383,8 +402,9 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
         nav.navigate(Routes.live(request.id)) { launchSingleTop = true }
     }
 
-    BackHandler(enabled = menuOpen || overlayUp) {
+    BackHandler(enabled = menuOpen || overlayUp || sleepOn) {
         when {
+            sleepOn -> SleepPreview.open.value = false
             overlayUp -> AlertController.ignore()
             menuOpen -> menuOpen = false
         }
@@ -510,7 +530,14 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
                 )
             }
         }
-        if (overlayUp) {
+        if (sleepOn) {
+            SleepWall(
+                container = container,
+                focusRequester = sleepFocus,
+                onToggle = { SleepPreview.open.value = false },
+            )
+        }
+        if (overlayUp && !sleepOn) {
             AlertInsetHost(corner = settings.alertCorner) {
                 AlertPopupGroup(
                     slots = popups,
@@ -527,6 +554,49 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SleepWall(
+    container: AppContainer,
+    focusRequester: FocusRequester,
+    onToggle: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AptColors.backgroundBrush)
+            .focusProperties { onExit = { cancelFocusChange() } }
+            .focusGroup()
+            .zIndex(4f),
+    ) {
+        CameraWall(
+            container = container,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = AptSpace.overscanX,
+                    end = AptSpace.overscanX,
+                    top = AptSpace.overscanY,
+                    bottom = 96.dp,
+                ),
+        )
+        AptSwitchRow(
+            label = "Sleep screen",
+            description = "Showing the camera wall. Back leaves it.",
+            checked = true,
+            icon = AptIconKind.Camera,
+            onToggle = onToggle,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(
+                    start = AptSpace.overscanX,
+                    end = AptSpace.overscanX,
+                    bottom = AptSpace.overscanY,
+                )
+                .focusRequester(focusRequester),
+        )
     }
 }
 
