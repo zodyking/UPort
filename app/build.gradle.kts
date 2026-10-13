@@ -25,8 +25,8 @@ android {
         applicationId = "app.apt443"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "0.3.3"
+        versionCode = 19
+        versionName = "0.3.4"
     }
 
     signingConfigs {

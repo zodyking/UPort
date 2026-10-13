@@ -14,6 +14,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,11 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -71,8 +77,14 @@ import app.apt443.domain.Camera
 import app.apt443.domain.Feed
 import app.apt443.domain.StreamQuality
 import app.apt443.domain.coerceFadeSeconds
+import app.apt443.domain.displayLabel
+import app.apt443.ui.components.AptIcon
+import app.apt443.ui.components.AptIconKind
+import app.apt443.ui.components.StatusPill
+import app.apt443.ui.components.StatusTone
 import app.apt443.ui.player.LiveStreamTile
 import app.apt443.ui.theme.AptColors
+import kotlinx.coroutines.flow.MutableStateFlow
 import app.apt443.ui.theme.AptRadius
 import app.apt443.ui.theme.AptSpace
 import app.apt443.ui.theme.AptType
@@ -85,6 +97,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
+
+/** Manual camera wall opened from Live Feed. Corner alerts stay hidden while it is open. */
+object SleepPreview {
+    val open = MutableStateFlow(false)
+}
 
 /** Idle screen: cameras in pages of nine, no buttons. Any remote key leaves it. The panel stays lit. */
 class CameraDream : DreamService() {
@@ -114,7 +131,15 @@ class CameraDream : DreamService() {
             setViewTreeSavedStateRegistryOwner(host)
             isFocusable = false
             setBackgroundColor(AndroidColor.BLACK)
-            setContent { DreamCameras(application as Apt443Application) }
+            setContent {
+                CameraWall(
+                    container = (application as Apt443Application).container,
+                    modifier = Modifier.fillMaxSize().padding(
+                        horizontal = AptSpace.overscanX,
+                        vertical = AptSpace.overscanY,
+                    ),
+                )
+            }
         }
         host.create()
         setContentView(view, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
@@ -140,8 +165,10 @@ class CameraDream : DreamService() {
 }
 
 @Composable
-private fun DreamCameras(application: Apt443Application) {
-    val container = application.container
+fun CameraWall(
+    container: AppContainer,
+    modifier: Modifier = Modifier,
+) {
     val settings by container.settings.collectAsState(initial = AppSettings())
     val feed by container.protect.cameras().collectAsState(initial = Feed(emptyList(), Availability.NeedsSetup("")))
     val events by container.protect.events().collectAsState(initial = Feed(emptyList(), Availability.NeedsSetup("")))
@@ -202,7 +229,7 @@ private fun DreamCameras(application: Apt443Application) {
     val visible = board.visibleIds.mapNotNull { byId[it] }.ifEmpty { cameras.take(DREAM_PAGE_SIZE) }
     val ringTurn = rememberDreamRingTurn()
     Apt443Theme {
-        Box(modifier = Modifier.fillMaxSize().background(AptColors.Background)) {
+        Box(modifier = Modifier.fillMaxSize().background(AptColors.backgroundBrush)) {
             if (cameras.isEmpty()) {
                 Text(
                     text = "Waiting for cameras",
@@ -217,6 +244,7 @@ private fun DreamCameras(application: Apt443Application) {
                     ringTurn = ringTurn,
                     container = container,
                     client = client,
+                    modifier = modifier,
                 )
             }
         }
@@ -269,15 +297,16 @@ private fun DreamGrid(
     ringTurn: Float,
     container: AppContainer,
     client: OkHttpClient,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(AptSpace.sm),
-        verticalArrangement = Arrangement.spacedBy(AptSpace.sm),
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(AptSpace.md),
     ) {
         dreamGrid(cameras.map { it.id }).forEach { row ->
             Row(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(AptSpace.sm),
+                horizontalArrangement = Arrangement.spacedBy(AptSpace.md),
             ) {
                 row.forEach { id ->
                     val camera = id?.let { cellId -> cameras.firstOrNull { it.id == cellId } }
@@ -353,46 +382,91 @@ private fun DreamTile(
     ringTurn: Float,
     modifier: Modifier,
 ) {
-    val stroke = 6.dp
-    val corner = AptRadius.tile
-    Box(
-        modifier = modifier.drawWithContent {
-            drawContent()
-            if (detecting) {
-                val strokePx = stroke.toPx()
-                val half = strokePx / 2f
-                val frame = Size(size.width - strokePx, size.height - strokePx)
-                drawRoundRect(
-                    brush = chasingBorder(ringTurn),
-                    topLeft = Offset(half, half),
-                    size = frame,
-                    cornerRadius = CornerRadius(corner.toPx(), corner.toPx()),
-                    style = Stroke(width = strokePx),
-                )
+    val stroke = 3.dp
+    val shape = RoundedCornerShape(AptRadius.tile)
+    val status = when {
+        detecting -> "Motion" to StatusTone.Danger
+        camera.online -> "Online" to StatusTone.Online
+        else -> "Offline" to StatusTone.Offline
+    }
+    Column(
+        modifier = modifier
+            .drawWithContent {
+                drawContent()
+                if (detecting) {
+                    val strokePx = stroke.toPx()
+                    val half = strokePx / 2f
+                    val frame = Size(size.width - strokePx, size.height - strokePx)
+                    drawRoundRect(
+                        brush = chasingBorder(ringTurn),
+                        topLeft = Offset(half, half),
+                        size = frame,
+                        cornerRadius = CornerRadius(AptRadius.tile.toPx(), AptRadius.tile.toPx()),
+                        style = Stroke(width = strokePx),
+                    )
+                }
             }
-        },
+            .border(1.dp, AptColors.Hairline, shape)
+            .clip(shape),
     ) {
-        LiveStreamTile(
-            cameraId = camera.id,
-            quality = StreamQuality.Low,
-            container = container,
-            client = client,
-            modifier = Modifier.fillMaxSize(),
-            surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
-            showSpinner = false,
-            enabled = camera.online,
-        )
-        Text(
-            text = camera.name.ifBlank { "Camera" },
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(AptSpace.xs),
-            fontSize = AptType.label,
-            fontWeight = FontWeight.SemiBold,
-            color = AptColors.OnBackground,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+                .weight(1f)
+                .fillMaxWidth()
+                .background(AptColors.PreviewWell),
+        ) {
+            LiveStreamTile(
+                cameraId = camera.id,
+                quality = StreamQuality.Low,
+                container = container,
+                client = client,
+                modifier = Modifier.fillMaxSize(),
+                surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
+                showSpinner = false,
+                enabled = camera.online,
+                placeholder = {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(AptSpace.xs),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .border(1.dp, AptColors.Hairline, CircleShape)
+                                .background(AptColors.Glass, CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            AptIcon(
+                                kind = if (camera.isDoorbell) AptIconKind.Bell else AptIconKind.Camera,
+                                modifier = Modifier.size(22.dp),
+                                tint = AptColors.Tertiary,
+                            )
+                        }
+                    }
+                },
+            )
+        }
+        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(AptColors.Hairline))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(AptColors.GlassRaised)
+                .padding(horizontal = AptSpace.sm, vertical = AptSpace.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(AptSpace.sm),
+        ) {
+            Text(
+                text = camera.name.displayLabel("Camera"),
+                modifier = Modifier.weight(1f),
+                fontSize = AptType.label,
+                fontWeight = FontWeight.SemiBold,
+                color = AptColors.OnBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            StatusPill(text = status.first, tone = status.second, filled = detecting)
+        }
     }
 }
 
