@@ -18,6 +18,7 @@ import app.apt443.data.live.TalkbackAnnouncer
 import app.apt443.data.live.ProtectLegacySession
 import app.apt443.data.live.RecordingCache
 import app.apt443.data.live.UnifiHttp
+import app.apt443.domain.Availability
 import app.apt443.domain.AccountGate
 import app.apt443.domain.IdentityUser
 import app.apt443.domain.TenantLabel
@@ -48,6 +49,8 @@ import app.apt443.domain.ReachPreference
 import app.apt443.domain.SiteVpnKind
 import app.apt443.domain.SignInResult
 import app.apt443.domain.StreamQuality
+import app.apt443.domain.manualRtsp
+import app.apt443.domain.sanitizeRtsp
 import app.apt443.data.live.LinkWatch
 import app.apt443.data.live.ProbeResult
 import kotlinx.coroutines.CoroutineScope
@@ -67,6 +70,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import app.apt443.tailscale.TailscaleLogin
 import app.apt443.ui.player.StreamEpoch
 import app.apt443.ui.player.StreamUrlCache
@@ -121,6 +125,11 @@ class AppContainer(private val context: Context) {
     val vpnStatus: Flow<VpnStatus> = vpnReach.status
     private val _startup = MutableStateFlow<Startup>(Startup.Loading("Loading"))
     val startup: StateFlow<Startup> = _startup
+    private val rtspKnown = ConcurrentHashMap<String, Boolean>()
+    private val rtspTriedAt = ConcurrentHashMap<String, Long>()
+    private val _camerasNeedingRtsp = MutableStateFlow<Set<String>>(emptySet())
+    /** Cameras Protect listed that have no playable stream and no address saved on this TV. */
+    val camerasNeedingRtsp: StateFlow<Set<String>> = _camerasNeedingRtsp
 
     init {
         monitor.start(appScope)
@@ -147,6 +156,11 @@ class AppContainer(private val context: Context) {
         }
         appScope.launch {
             link.changes.debounce(1_200).collect { reconnects.trySend(Unit) }
+        }
+        appScope.launch {
+            protect.cameras().collect { feed ->
+                probeMissingStreams(feed.items)
+            }
         }
         appScope.launch {
             reconnects.receiveAsFlow().collectLatest {
@@ -264,6 +278,70 @@ class AppContainer(private val context: Context) {
         saveSettings(current.copy(cameraWizardDoneIds = current.cameraWizardDoneIds + userId))
     }
 
+    /** Saves or clears the RTSP address this TV uses for one camera. */
+    suspend fun setManualRtsp(cameraId: String, url: String?) {
+        if (cameraId.isBlank()) return
+        val clean = if (url == null) null else sanitizeRtsp(url) ?: return
+        val current = settings.first()
+        val next = current.manualRtspByCamera.toMutableMap()
+        if (clean == null) next.remove(cameraId) else next[cameraId] = clean
+        saveSettings(current.copy(manualRtspByCamera = next))
+        StreamQuality.entries.forEach { StreamUrlCache.invalidate(cameraId, it) }
+        StreamEpoch.bump()
+        if (clean == null) {
+            rtspKnown.remove(cameraId)
+            rtspTriedAt.remove(cameraId)
+        } else {
+            _camerasNeedingRtsp.value = _camerasNeedingRtsp.value - cameraId
+        }
+    }
+
+    private suspend fun probeMissingStreams(cameras: List<app.apt443.domain.Camera>) {
+        val current = settings.first()
+        if (!current.siteConfigured || current.dataSource != DataSourceMode.Live) {
+            _camerasNeedingRtsp.value = emptySet()
+            return
+        }
+        val missing = mutableSetOf<String>()
+        val listed = cameras.map { it.id }.filter { it.isNotBlank() }.toSet()
+        rtspKnown.keys.retainAll(listed)
+        rtspTriedAt.keys.retainAll(listed)
+        for (camera in cameras) {
+            val id = camera.id
+            if (id.isBlank()) continue
+            if (settings.first().manualRtsp(id) != null) continue
+            when (rtspKnown[id]) {
+                true -> continue
+                false -> missing.add(id)
+                null -> {
+                    val now = System.currentTimeMillis()
+                    val last = rtspTriedAt[id] ?: 0L
+                    if (now - last < 60_000L) continue
+                    rtspTriedAt[id] = now
+                    val offer = protect.liveStream(id, StreamQuality.Low)
+                    if (settings.first().manualRtsp(id) != null) continue
+                    when {
+                        !offer.url.isNullOrBlank() -> rtspKnown[id] = true
+                        offer.availability is Availability.HomeNetworkOnly -> rtspTriedAt.remove(id)
+                        rtspIsMissing(offer.message) -> {
+                            rtspKnown[id] = false
+                            missing.add(id)
+                        }
+                    }
+                }
+            }
+        }
+        _camerasNeedingRtsp.value = missing
+    }
+
+    /** Protect answered, and this camera has no stream it will create. */
+    private fun rtspIsMissing(message: String): Boolean {
+        if (message.contains("did not include a playable URL", ignoreCase = true)) return true
+        val code = Regex("RTSPS HTTP (\\d+)").find(message)?.groupValues?.getOrNull(1)?.toIntOrNull()
+            ?: return false
+        return code == 400 || code == 403 || code == 404 || code == 409 || code == 422
+    }
+
     /** Clears the site file so the TV returns to the setup form. Resident sign-in is cleared too. */
     suspend fun resetSite() {
         secrets.clear(SecretKeys.PROTECT_API_KEY)
@@ -294,8 +372,12 @@ class AppContainer(private val context: Context) {
                 residentStatus = "",
                 cameraWizardDoneIds = emptySet(),
                 persistentCameras = emptyList(),
+                manualRtspByCamera = emptyMap(),
             ),
         )
+        rtspKnown.clear()
+        rtspTriedAt.clear()
+        _camerasNeedingRtsp.value = emptySet()
     }
 
     suspend fun signIn(

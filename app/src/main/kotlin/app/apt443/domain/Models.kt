@@ -412,6 +412,11 @@ data class AppSettings(
     val customSpeakerPhrases: List<SpeakerPhrase> = emptyList(),
     /** Cameras drawn all the time. These do not also raise popups. */
     val persistentCameras: List<PersistentCamera> = emptyList(),
+    /**
+     * RTSP addresses saved on this TV for cameras Protect will not stream,
+     * including third-party cameras. The password stays in this map.
+     */
+    val manualRtspByCamera: Map<String, String> = emptyMap(),
     /** Turns off the TV sleep timer and keeps the app screen lit. */
     val keepTvAwake: Boolean = true,
     /** Registers the camera wall as the system screensaver. */

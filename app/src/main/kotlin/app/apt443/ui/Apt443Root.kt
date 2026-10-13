@@ -116,6 +116,7 @@ import app.apt443.ui.screens.NetworkScreen
 import app.apt443.ui.screens.RemoteScreen
 import app.apt443.ui.screens.SettingsScreen
 import app.apt443.ui.screens.SignInScreen
+import app.apt443.ui.screens.StreamSetupScreen
 import app.apt443.ui.theme.AptColors
 import app.apt443.ui.theme.AptMotion
 import app.apt443.ui.theme.AptRadius
@@ -140,7 +141,10 @@ object Routes {
     const val Settings = "settings"
     const val Account = "account"
 
+    const val Stream = "stream/{cameraId}"
+
     fun live(cameraId: String) = "live/$cameraId"
+    fun stream(cameraId: String) = "stream/${android.net.Uri.encode(cameraId)}"
 }
 
 @Composable
@@ -460,9 +464,21 @@ private fun SignedInShell(container: AppContainer, settings: AppSettings) {
                         route = Routes.Live,
                         arguments = listOf(navArgument("cameraId") { type = NavType.StringType }),
                     ) { backStack ->
+                        val cameraId = backStack.arguments?.getString("cameraId").orEmpty()
                         LiveScreen(
                             container = container,
                             client = client,
+                            cameraId = cameraId,
+                            onBack = { nav.popBackStack() },
+                            onAddStream = { nav.navigate(Routes.stream(cameraId)) },
+                        )
+                    }
+                    composable(
+                        route = Routes.Stream,
+                        arguments = listOf(navArgument("cameraId") { type = NavType.StringType }),
+                    ) { backStack ->
+                        StreamSetupScreen(
+                            container = container,
                             cameraId = backStack.arguments?.getString("cameraId").orEmpty(),
                             onBack = { nav.popBackStack() },
                         )

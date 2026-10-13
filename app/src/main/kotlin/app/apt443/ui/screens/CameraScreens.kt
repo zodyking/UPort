@@ -62,6 +62,7 @@ import androidx.tv.material3.Text
 import app.apt443.alert.AlertPermissions
 import app.apt443.data.AppContainer
 import app.apt443.domain.AppSettings
+import app.apt443.domain.manualRtsp
 import app.apt443.domain.residentGreeting
 import app.apt443.domain.Availability
 import app.apt443.domain.Camera
@@ -143,6 +144,7 @@ fun CamerasScreen(container: AppContainer, client: OkHttpClient, nav: NavHostCon
     val visibleKeys by remember {
         derivedStateOf { gridState.layoutInfo.visibleItemsInfo.map { it.key }.toSet() }
     }
+    val needing by container.camerasNeedingRtsp.collectAsStateWithLifecycle()
     val online = feed.items.count { it.online }
     var lastOpened by rememberSaveable { mutableStateOf<String?>(null) }
     val tileFocus = remember { mutableMapOf<String, FocusRequester>() }
@@ -211,6 +213,13 @@ fun CamerasScreen(container: AppContainer, client: OkHttpClient, nav: NavHostCon
                             )
                         }
                     }
+                    feed.items.filter { it.id in needing }.forEach { camera ->
+                        SetupBanner(
+                            text = "${camera.name.displayLabel("Camera")} has no Protect stream",
+                            detail = "Add an RTSP address. It stays on this TV.",
+                            onClick = { nav.navigate(Routes.stream(camera.id)) },
+                        )
+                    }
                     if (!alertPermissions.alertsReady) {
                         SetupBanner(
                             text = AlertPermissions.statusLine(alertPermissions),
@@ -250,6 +259,7 @@ fun CamerasScreen(container: AppContainer, client: OkHttpClient, nav: NavHostCon
                     camera = camera,
                     client = client,
                     container = container,
+                    needsStream = camera.id in needing,
                     onOpen = {
                         lastOpened = camera.id
                         nav.navigate(Routes.live(camera.id))
@@ -298,6 +308,7 @@ private fun LiveCameraTile(
     camera: Camera,
     client: OkHttpClient,
     container: AppContainer,
+    needsStream: Boolean,
     onOpen: () -> Unit,
     playing: Boolean,
     modifier: Modifier = Modifier,
@@ -360,15 +371,24 @@ private fun LiveCameraTile(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(AptSpace.sm),
             ) {
-                Text(
-                    text = camera.name.displayLabel("Camera"),
-                    fontSize = AptType.camera,
-                    fontWeight = FontWeight.SemiBold,
-                    color = AptColors.OnVideo,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = camera.name.displayLabel("Camera"),
+                        fontSize = AptType.camera,
+                        fontWeight = FontWeight.SemiBold,
+                        color = AptColors.OnVideo,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (needsStream) {
+                        Text(
+                            "No Protect stream",
+                            fontSize = AptType.caption,
+                            color = AptColors.Warning,
+                            maxLines = 1,
+                        )
+                    }
+                }
                 StatusPill(text = status.label, tone = status.tone(), filled = status == TileStatus.Live)
             }
         }
@@ -428,11 +448,14 @@ fun LiveScreen(
     client: OkHttpClient,
     cameraId: String,
     onBack: () -> Unit,
+    onAddStream: () -> Unit = {},
 ) {
     val cameras by container.protect.cameras().collectAsStateWithLifecycle(
         initialValue = Feed(emptyList(), Availability.NeedsSetup("")),
     )
+    val settings by container.settings.collectAsStateWithLifecycle(initialValue = AppSettings())
     val camera = cameras.items.firstOrNull { it.id == cameraId }
+    val savedStream = settings.manualRtsp(cameraId)
     val scope = rememberCoroutineScope()
     var quality by remember(cameraId) { mutableStateOf(StreamPlayback.preferredLiveQuality()) }
     var retryNonce by remember(cameraId) { mutableIntStateOf(0) }
@@ -616,6 +639,11 @@ fun LiveScreen(
                         },
                     )
                     AptButton(text = "Retry live", icon = AptIconKind.Retry, onClick = { retryLive() })
+                    AptButton(
+                        text = if (savedStream == null) "Add stream" else "Change stream",
+                        icon = AptIconKind.Settings,
+                        onClick = onAddStream,
+                    )
                     if (camera?.isPtz == true) {
                         PtzCluster(
                             onMove = { move ->
