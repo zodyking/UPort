@@ -87,7 +87,7 @@ data class PersistentCamera(
     }
 }
 
-/** Where APT 443 draws its own alert. Fire TV's system banner cannot be moved. */
+/** Where UPort draws its own alert. Fire TV's system banner cannot be moved. */
 enum class AlertCorner {
     TopLeft,
     TopCenter,

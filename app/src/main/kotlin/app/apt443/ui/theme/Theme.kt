@@ -24,7 +24,7 @@ import androidx.tv.material3.Shapes
 import androidx.tv.material3.darkColorScheme
 
 /**
- * APT 443 visual system: "soft premium" dark security console.
+ * UPort visual system: "soft premium" dark security console.
  * Near-black gradient canvas, translucent raised surfaces, large radii, hairline borders,
  * one blue accent reserved for focus and primary actions, a 10-foot type scale and
  * overscan-safe spacing.

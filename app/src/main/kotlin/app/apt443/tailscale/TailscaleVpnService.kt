@@ -31,6 +31,11 @@ class TailscaleVpnService : VpnService(), IPNService {
         established.set(status)
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        running = this
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_STOP -> {
@@ -65,9 +70,14 @@ class TailscaleVpnService : VpnService(), IPNService {
     }
 
     override fun onDestroy() {
+        if (running === this) running = null
         established.set(false)
         if (!closed.get()) close()
         super.onDestroy()
+    }
+
+    private fun useNetwork(network: android.net.Network) {
+        runCatching { setUnderlyingNetworks(arrayOf(network)) }
     }
 
     override fun newBuilder(): VPNServiceBuilder {
@@ -126,6 +136,15 @@ class TailscaleVpnService : VpnService(), IPNService {
         private const val NOTIFICATION_ID = 4431
 
         val established = AtomicBoolean(false)
+        private var running: TailscaleVpnService? = null
+
+        /** Point the live tunnel at the Wi-Fi or Ethernet link that just came up. */
+        fun rebind(context: Context) {
+            val network = PhysicalNetwork.pick(context) ?: return
+            running?.useNetwork(network)
+            runCatching { Libtailscale.onDNSConfigChanged(PhysicalNetwork.dnsConfig(context)) }
+            runCatching { Libtailscale.onGatewayChanged(PhysicalNetwork.gateway(context)) }
+        }
 
         fun start(context: Context) {
             val intent = Intent(context, TailscaleVpnService::class.java).setAction(ACTION_START)
