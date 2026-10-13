@@ -48,8 +48,10 @@ import app.apt443.domain.ReachPreference
 import app.apt443.domain.SiteVpnKind
 import app.apt443.domain.SignInResult
 import app.apt443.domain.StreamQuality
+import app.apt443.data.live.LinkWatch
 import app.apt443.data.live.ProbeResult
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import android.util.Log
@@ -57,13 +59,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import app.apt443.tailscale.TailscaleLogin
+import app.apt443.ui.player.StreamEpoch
 import app.apt443.ui.player.StreamUrlCache
 
 class AppContainer(private val context: Context) {
@@ -130,18 +135,23 @@ class AppContainer(private val context: Context) {
                 saveSettings(latest.copy(reachPreference = ReachPreference.Auto, reachChosen = true))
             }
         }
+        val link = LinkWatch(context)
+        link.start()
+        val reconnects = Channel<Unit>(Channel.CONFLATED)
+        reconnects.trySend(Unit)
         appScope.launch {
             settings
                 .map { Triple(it.siteConfigured, it.consoleHost, it.vpnKind) }
                 .distinctUntilChanged()
-                .collectLatest { (configured, _, _) ->
-                    if (!configured) {
-                        vpnReach.stopOurTunnel(clearStatus = true)
-                        _startup.value = Startup.Idle
-                    } else {
-                        revive()
-                    }
-                }
+                .collect { reconnects.trySend(Unit) }
+        }
+        appScope.launch {
+            link.changes.debounce(1_200).collect { reconnects.trySend(Unit) }
+        }
+        appScope.launch {
+            reconnects.receiveAsFlow().collectLatest {
+                reconnect()
+            }
         }
         appScope.launch {
             settings
@@ -152,6 +162,33 @@ class AppContainer(private val context: Context) {
         appScope.launch {
             monitor.mode.collect { StreamUrlCache.clear() }
         }
+    }
+
+    /**
+     * The TV joined a different link, or came back from one. Drop the sockets and
+     * stream addresses from the old link, point Tailscale at the new one, and
+     * bring the console connection back.
+     */
+    private suspend fun reconnect() {
+        val current = settings.first()
+        if (!current.siteConfigured) {
+            vpnReach.stopOurTunnel(clearStatus = true)
+            _startup.value = Startup.Idle
+            return
+        }
+        http.evictConnections()
+        StreamUrlCache.clear()
+        StreamEpoch.bump()
+        if (current.vpnKind == SiteVpnKind.Tailscale) vpnReach.onNetworkChanged()
+        val wasReady = _startup.value is Startup.Ready
+        if (wasReady) {
+            repeat(4) { attempt ->
+                if (attempt > 0) delay(1_500)
+                val reached = probeConsole(current.consoleHost, current.trustConsoleCertificate)
+                if (reached !is ProbeResult.Unreachable) return
+            }
+        }
+        revive()
     }
 
     private suspend fun revive() {

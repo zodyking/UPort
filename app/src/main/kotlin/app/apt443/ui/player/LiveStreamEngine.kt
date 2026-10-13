@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -123,6 +124,7 @@ fun LiveStreamTile(
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val foreground = lifecycleState.isAtLeast(Lifecycle.State.STARTED)
     val active = enabled && playing && foreground && cameraId.isNotBlank()
+    val networkEpoch by StreamEpoch.epoch.collectAsStateWithLifecycle()
 
     val policy = remember(cameraId, quality) { StreamRetryPolicy() }
     var phase by remember(cameraId, quality) { mutableStateOf(StreamPhase.Connecting) }
@@ -140,7 +142,7 @@ fun LiveStreamTile(
     LaunchedEffect(phase) { phaseCallback(phase) }
     LaunchedEffect(ratio) { aspectCallback(ratio) }
 
-    LaunchedEffect(cameraId, quality, active) {
+    LaunchedEffect(cameraId, quality, active, networkEpoch) {
         if (!active) {
             url = null
             if (!enabled) {

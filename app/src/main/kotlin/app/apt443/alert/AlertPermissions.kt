@@ -109,7 +109,7 @@ object AlertPermissions {
     }
 
     /**
-     * Opens the accessibility list, where the viewer switches "APT 443 alerts" on. This is the
+     * Opens the accessibility list, where the viewer switches "UPort alerts" on. This is the
      * route that works on every TV, including the ones with no overlay permission screen.
      */
     /** True when the OS lists this app's accessibility service as installable. */

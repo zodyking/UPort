@@ -85,6 +85,15 @@ class UnifiHttp {
             .followRedirects(false)
     }
 
+    /** Drop sockets left over from the previous Wi-Fi or Ethernet link. */
+    fun evictConnections() {
+        val clients = listOf(strictClient) + trustedByHost.values + probeByKey.values
+        clients.forEach { client ->
+            runCatching { client.connectionPool.evictAll() }
+            runCatching { client.dispatcher.cancelAll() }
+        }
+    }
+
     fun clientFor(settings: AppSettings): OkHttpClient {
         val host = consoleHost(settings)
         if (!settings.trustConsoleCertificate || host.isBlank()) return strictClient

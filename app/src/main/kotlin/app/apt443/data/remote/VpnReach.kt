@@ -57,6 +57,10 @@ class VpnReach(
         return result
     }
 
+    fun onNetworkChanged() {
+        engine.onNetworkChanged()
+    }
+
     suspend fun stopOurTunnel(clearStatus: Boolean = false) {
         engine.logout()
         if (clearStatus) _status.value = idle()

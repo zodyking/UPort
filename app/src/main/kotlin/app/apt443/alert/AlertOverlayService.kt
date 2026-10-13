@@ -301,7 +301,7 @@ class AlertOverlayService : Service() {
     }
 
     private fun presentWithoutOverlay(alert: AlertInset) {
-        // When APT 443 is on screen, the in-app card from [AlertController] is enough.
+        // When UPort is on screen, the in-app card from [AlertController] is enough.
         // Launching [AlertActivity] as well stacks a second copy of the same alert.
         if (AptVisibility.mainResumed) return
         launchAlertActivity()

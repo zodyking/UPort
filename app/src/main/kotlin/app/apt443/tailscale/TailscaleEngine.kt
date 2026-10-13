@@ -66,6 +66,12 @@ class TailscaleEngine(
 
     fun tunnelUp(): Boolean = state.value == TailscaleLogin.STATE_RUNNING && TailscaleVpnService.established.get()
 
+    /** The Wi-Fi or Ethernet link changed. Rebind sockets and the tunnel to that link. */
+    fun onNetworkChanged() {
+        TailscaleVpnService.rebind(appContext)
+        if (backend != null) TailscaleVpnService.start(appContext)
+    }
+
     private fun startBackend() {
         if (backend != null) return
         val dir = appContext.filesDir.resolve("tailscale").apply { mkdirs() }.absolutePath

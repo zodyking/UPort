@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -55,8 +56,9 @@ fun ConsolePlayer(
     if (url.isNullOrBlank()) return
     val context = LocalContext.current
     val isRtsp = url.startsWith("rtsp", ignoreCase = true)
+    val networkEpoch by StreamEpoch.epoch.collectAsStateWithLifecycle()
     var attempt by remember(url) { mutableIntStateOf(0) }
-    val player = remember(url, attempt) {
+    val player = remember(url, attempt, networkEpoch) {
         StreamPlayback.buildPlayer(context, url, client)
     }
     val aspectCallback by rememberUpdatedState(onVideoAspect)

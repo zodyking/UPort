@@ -1,6 +1,8 @@
 package app.apt443.ui.player
 
 import app.apt443.domain.StreamQuality
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Lifecycle of one live tile.
@@ -156,6 +158,16 @@ class StreamUrlStore(
     @Synchronized
     fun clear() {
         entries.clear()
+    }
+}
+
+/** Bumped when the TV's network changes so every player drops its dead socket and starts again. */
+object StreamEpoch {
+    private val ticks = MutableStateFlow(0)
+    val epoch: StateFlow<Int> = ticks
+
+    fun bump() {
+        ticks.value++
     }
 }
 

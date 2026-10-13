@@ -38,7 +38,7 @@ import app.apt443.ui.theme.AptSpace
 import app.apt443.ui.theme.AptType
 
 /**
- * Same alert card used inside the app, shown after APT 443 leaves the screen
+ * Same alert card used inside the app, shown after UPort leaves the screen
  * when a system overlay window is not allowed.
  */
 class AlertActivity : ComponentActivity() {
