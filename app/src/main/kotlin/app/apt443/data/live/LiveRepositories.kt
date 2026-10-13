@@ -37,6 +37,7 @@ import app.apt443.domain.DetectionType
 import app.apt443.domain.detectionTypes
 import app.apt443.domain.matchesKind
 import app.apt443.domain.cameraReplies
+import app.apt443.domain.manualRtsp
 import app.apt443.domain.shouldAlert
 import app.apt443.data.settings.SecretKeys
 import app.apt443.data.settings.SecretStore
@@ -185,6 +186,9 @@ class LiveProtectRepository(
         val mode = monitor.mode.value
         if (mode != ConnectionMode.OnNetwork) {
             return LiveStreamOffer(null, Availability.HomeNetworkOnly(HOME_VIDEO), HOME_VIDEO)
+        }
+        settings.manualRtsp(cameraId)?.let { saved ->
+            return LiveStreamOffer(saved, Availability.Ready, "Your stream")
         }
         return client.createRtsps(settings, cameraId, quality).fold(
             onSuccess = { url -> LiveStreamOffer(url, Availability.Ready, quality.label) },
@@ -482,7 +486,8 @@ class LiveProtectRepository(
         if (cameraId.isNullOrBlank()) return inset
         val live = settings.popupPicture == PopupPicture.Live && mode == ConnectionMode.OnNetwork
         val stream = if (live) {
-            client.createRtsps(settings, cameraId, settings.pipStreamQuality).getOrNull()
+            settings.manualRtsp(cameraId)
+                ?: client.createRtsps(settings, cameraId, settings.pipStreamQuality).getOrNull()
         } else {
             null
         }

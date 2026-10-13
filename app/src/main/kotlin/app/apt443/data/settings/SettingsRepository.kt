@@ -20,6 +20,8 @@ import app.apt443.domain.coerceFadeSeconds
 import app.apt443.domain.coerceOpenCount
 import app.apt443.domain.CameraAlertPrefs
 import app.apt443.domain.ConsoleSignInMode
+import app.apt443.domain.decodeManualRtsp
+import app.apt443.domain.encodeManualRtsp
 import app.apt443.domain.legacyMutedIds
 import app.apt443.domain.migrateLegacyMutes
 import app.apt443.domain.DataSourceMode
@@ -79,6 +81,7 @@ class SettingsRepository(
             prefs[Keys.KEEP_AWAKE] = settings.keepTvAwake.toString()
             prefs[Keys.CAMERA_SCREENSAVER] = settings.cameraScreensaver.toString()
             prefs[Keys.PAUSE_ON_ALERT] = settings.pausePlaybackOnAlert.toString()
+            prefs[Keys.MANUAL_RTSP] = encodeManualRtsp(settings.manualRtspByCamera)
             writeAlertPrefs(prefs, settings.defaultAlertPrefs, settings.cameraAlertPrefs)
         }
     }
@@ -159,6 +162,7 @@ class SettingsRepository(
             keepTvAwake = this[Keys.KEEP_AWAKE] != "false",
             cameraScreensaver = this[Keys.CAMERA_SCREENSAVER] != "false",
             pausePlaybackOnAlert = this[Keys.PAUSE_ON_ALERT] == "true",
+            manualRtspByCamera = decodeManualRtsp(this[Keys.MANUAL_RTSP]),
         ).normalize()
     }
 
@@ -221,5 +225,6 @@ class SettingsRepository(
         val KEEP_AWAKE = stringPreferencesKey("keep_tv_awake")
         val CAMERA_SCREENSAVER = stringPreferencesKey("camera_screensaver")
         val PAUSE_ON_ALERT = stringPreferencesKey("pause_playback_on_alert")
+        val MANUAL_RTSP = stringPreferencesKey("manual_rtsp_urls")
     }
 }
